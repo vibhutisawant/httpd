@@ -261,12 +261,13 @@ jobs:
     name: ${{ matrix.name }}
     steps:
     - uses: actions/checkout@v2
-    - name: Build vkQuake2 ARMv7 Debug
+    - name: Set environment variables
       uses: uraimo/run-on-arch-action@v1.0.9
       with:
         architecture: s390x
         distribution: ubuntu20.04
         run: |
+            echo "${{ matrix.env }}" >> $GITHUB_ENV
             export DEBIAN_FRONTEND=noninteractive
             sudo apt-get -o Acquire::Retries=5 update
             echo "${{ matrix.env }}" >> $GITHUB_ENV
@@ -278,16 +279,16 @@ jobs:
             ./test/travis_before_linux.sh
             
             
-    - name: Set environment variables
-      run: echo "${{ matrix.env }}" >> $GITHUB_ENV
-    - name: apt refresh
-      run: sudo apt-get -o Acquire::Retries=5 update
-    - name: Install prerequisites
-      run:  apt-get install -o Acquire::Retries=5
-                    cpanminus libtool-bin libapr1-dev libaprutil1-dev
-                    liblua5.3-dev libbrotli-dev libcurl4-openssl-dev     
-                    libnghttp2-dev libjansson-dev libpcre2-dev gdb
-                    perl-doc ${{ matrix.pkgs }}
+#     - name: Set environment variables
+#       run: echo "${{ matrix.env }}" >> $GITHUB_ENV
+#     - name: apt refresh
+#       run: sudo apt-get -o Acquire::Retries=5 update
+#     - name: Install prerequisites
+#       run:  apt-get install -o Acquire::Retries=5
+#                     cpanminus libtool-bin libapr1-dev libaprutil1-dev
+#                     liblua5.3-dev libbrotli-dev libcurl4-openssl-dev     
+#                     libnghttp2-dev libjansson-dev libpcre2-dev gdb
+#                     perl-doc ${{ matrix.pkgs }}
 #     - uses: actions/checkout@v3
 #     - name: Cache APR build
 #       uses: actions/cache@v3
