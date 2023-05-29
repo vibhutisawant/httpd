@@ -260,6 +260,24 @@ jobs:
       CONFIG: ${{ matrix.config }}
     name: ${{ matrix.name }}
     steps:
+    - uses: actions/checkout@v2
+    - name: Build vkQuake2 ARMv7 Debug
+      uses: uraimo/run-on-arch-action@v1.0.9
+      with:
+        architecture: s390x
+        distribution: ubuntu20.04
+        run: |
+            export DEBIAN_FRONTEND=noninteractive
+            sudo apt-get -o Acquire::Retries=5 update
+            echo "${{ matrix.env }}" >> $GITHUB_ENV
+            sudo apt-get install -o Acquire::Retries=5
+                    cpanminus libtool-bin libapr1-dev libaprutil1-dev
+                    liblua5.3-dev libbrotli-dev libcurl4-openssl-dev     
+                    libnghttp2-dev libjansson-dev libpcre2-dev gdb
+                    perl-doc ${{ matrix.pkgs }}
+            ./test/travis_before_linux.sh
+            
+            
     - name: Set environment variables
       run: echo "${{ matrix.env }}" >> $GITHUB_ENV
     - name: apt refresh
@@ -270,35 +288,35 @@ jobs:
                     liblua5.3-dev libbrotli-dev libcurl4-openssl-dev     
                     libnghttp2-dev libjansson-dev libpcre2-dev gdb
                     perl-doc ${{ matrix.pkgs }}
-    - uses: actions/checkout@v3
-    - name: Cache APR build
-      uses: actions/cache@v3
-      env:
-        cache-name: cache-apru
-      with:
-        path: ~/root
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('/home/runner/root/.key-*') }}
-    - name: Cache CPAN modules
-      uses: actions/cache@v3
-      env:
-        cache-name: cache-cpan
-      with:
-        path: ~/perl5
-        key: ${{ runner.os }}-cpan-${{ env.cache-name }}-${{ hashFiles('/home/runner/perl5/.key') }}
-    - name: Configure environment
-      run: ./test/travis_before_linux.sh
-      timeout-minutes: 15
-    - uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: config.log ${{ matrix.node-version }}
-        path: |
-          /home/runner/build/**/config.log
-    - name: Build and test
-      run: ./test/travis_run_linux.sh
-    - uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: error_log ${{ matrix.node-version }}
-        path: test/perl-framework/t/logs/error_log
+#     - uses: actions/checkout@v3
+#     - name: Cache APR build
+#       uses: actions/cache@v3
+#       env:
+#         cache-name: cache-apru
+#       with:
+#         path: ~/root
+#         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('/home/runner/root/.key-*') }}
+#     - name: Cache CPAN modules
+#       uses: actions/cache@v3
+#       env:
+#         cache-name: cache-cpan
+#       with:
+#         path: ~/perl5
+#         key: ${{ runner.os }}-cpan-${{ env.cache-name }}-${{ hashFiles('/home/runner/perl5/.key') }}
+#     - name: Configure environment
+#       run: ./test/travis_before_linux.sh
+#       timeout-minutes: 15
+#     - uses: actions/upload-artifact@v3
+#       if: failure()
+#       with:
+#         name: config.log ${{ matrix.node-version }}
+#         path: |
+#           /home/runner/build/**/config.log
+#     - name: Build and test
+#       run: ./test/travis_run_linux.sh
+#     - uses: actions/upload-artifact@v3
+#       if: failure()
+#       with:
+#         name: error_log ${{ matrix.node-version }}
+#         path: test/perl-framework/t/logs/error_log
 
